@@ -1,16 +1,15 @@
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <iterator>
 #include <cmath>
 #include <cstring>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <vector>
 
-int main(int argc, const char *argv[])
-{
+int main() {
   std::vector<uint8_t> data;
   std::ifstream file{"elefante.jpg", std::ios::binary};
   if (not file.is_open()) {
-    std::cerr<<"file closed\n";
+    std::cerr << "file closed\n";
   } else {
     file.unsetf(std::ios::skipws);
     file.seekg(0, std::ios::end);
@@ -20,18 +19,18 @@ int main(int argc, const char *argv[])
     std::cerr << filesize << '\n';
     data.reserve(filesize);
     data.insert(data.begin(), std::istream_iterator<uint8_t>(file),
-        std::istream_iterator<uint8_t>());
+                std::istream_iterator<uint8_t>());
     int section_number = 7;
     double standard_section_size =
-      static_cast<float>(data.size()) / static_cast<float>(section_number);
+        static_cast<float>(data.size()) / static_cast<float>(section_number);
     auto normal_section_size = std::ceil(standard_section_size);
     auto last_section_size =
-      normal_section_size -
-      ((normal_section_size * section_number) - data.size());
+        normal_section_size -
+        ((normal_section_size * section_number) - data.size());
     std::cerr << "data.size() = " << data.size()
-      << "\nstandard_section_size = " << standard_section_size
-      << "\nnormal_section_size = " << normal_section_size
-      << "\nlast_section_size = " << last_section_size << '\n';
+              << "\nstandard_section_size = " << standard_section_size
+              << "\nnormal_section_size = " << normal_section_size
+              << "\nlast_section_size = " << last_section_size << '\n';
     for (int i = 0; i < section_number; ++i) {
       std::ofstream file_section;
       std::string ind(1, i + 49);
