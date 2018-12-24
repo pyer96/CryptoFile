@@ -6,9 +6,7 @@
 #include <vector>
 
 int main() {
-  
   std::vector<uint8_t> data;
-  
   std::ifstream file{"elefante.jpg", std::ios::binary};
   if (not file.is_open()) {
     std::cerr << "file closed\n";
