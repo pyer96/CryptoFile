@@ -6,7 +6,9 @@
 #include <vector>
 
 int main() {
+  
   std::vector<uint8_t> data;
+  
   std::ifstream file{"elefante.jpg", std::ios::binary};
   if (not file.is_open()) {
     std::cerr << "file closed\n";
@@ -46,8 +48,7 @@ int main() {
         section_size = normal_section_size;
       }
       file_section.write(
-          reinterpret_cast<const char *>(&data[normal_section_size * i]),
-          is_last ? last_section_size : normal_section_size);
+          reinterpret_cast<const char *>(&data[normal_section_size * i]), section_size);
     }
   }
   return 0;
