@@ -1,0 +1,41 @@
+<?subst/warnings/-Wall -Wextra -Wnon-virtual-dtor -Werror=delete-non-virtual-dtor?>
+<?subst/googleapis/
+    <item pattern="googleapis/client/transport/curl_http_transport" libs="-libgoogleapis_curl_http"/>
+    <item pattern="googleapis/client/transport/http_transport" libs="-libgoogleapis_http"/>
+    <item pattern="googleapis/client/auth/oauth2_authorization" libs="-libgoogleapis_oauth2"/>
+?>
+
+<?subst/binaries/<binaries>
+      <multiple main="Progs/*.cpp"/>
+      <multiple target="tests" main="*/Tests/*.cpp" prefix="test_"/>
+      <multiple target="tests" main="*/*/Tests/*.cpp" prefix="test_"/>
+    </binaries>
+?>
+<configuration
+  prefix="build"
+  source_extensions=".cpp .rc"
+  includes="Libraries"
+  sources="
+    CryptoFile
+    Progs
+  "
+>
+  <target name="gcc-release"
+    compiler="g++"
+    macros="__linux__"
+    compflags="-O2 -DTARGETID=0 -DNDEBUG &warnings; -pipe -march=native -std=c++14 -I. -ILibraries"
+    linkflags="-fuse-ld=gold -s"
+  >
+    &binaries;
+    <libraries>
+      <item name="googleapis"
+        compflags="-I$(HOME)/google-api-client-cpp"
+        linkflags="-L$(HOME)/google-api-client-cpp/lib"
+      >
+      <libs>
+        &googleapis;
+      </libs>
+      </item>
+    </libraries>
+  </target>
+</configuration>
