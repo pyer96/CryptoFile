@@ -5,10 +5,26 @@
 #include <iterator>
 #include <vector>
 
+#include "cryptopp/osrng.h"
+
 /** This demo splits the input file in N sections and stores them.
  * It takes as arguments the name of the target file and the N number of
  * sections
  */
+
+class Encrypt {
+private:
+  CryptoPP::byte m_iv;
+  CryptoPP::byte m_key;
+
+public:
+  Encrypt();
+};
+
+Encrypt::Encrypt() {
+  CryptoPP::AutoSeededRandomPool m_random_pool;
+
+}
 
 int main(int argc, const char *argv[]) {
   if (argc < 3 || argc > 3) {

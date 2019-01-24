@@ -1,17 +1,10 @@
 #include <iostream>
 #include <regex>
 
-//#include "googleapis/client/auth/oauth2_authorization.h"
-#include "googleapis/client/transport/curl_http_transport.h"
-#include "googleapis/client/transport/http_transport.h"
 #include "googleapis/client/util/status.h"
 
 class GoogleDrive {
 private:
-  // static std::unique_ptr<googleapis::client::OAuth2AuthorizationFlow> flow_;
-  static std::unique_ptr<googleapis::client::HttpTransportLayerConfig> config_;
-
-  //  std::unique_ptr<googleapis::client::OAuth2AuthorizationFlow> m_flow;
   std::string m_email;
 
 public:
@@ -22,11 +15,11 @@ public:
 googleapis::util::Status GoogleDrive::startup() {
   // Set up HttpTransportLayer.
   googleapis::util::Status status;
-  config_.reset(new googleapis::client::HttpTransportLayerConfig);
-  googleapis::client::HttpTransportFactory *factory =
-      new googleapis::client::CurlHttpTransportFactory(config_.get());
-  config_->ResetDefaultTransportFactory(factory);
-  // We consider the 'roots.pem' to be in the build folder
+  /*  config_.reset(new googleapis::client::HttpTransportLayerConfig);
+    googleapis::client::HttpTransportFactory *factory =
+        new googleapis::client::CurlHttpTransportFactory(config_.get());
+    config_->ResetDefaultTransportFactory(factory);
+    // We consider the 'roots.pem' to be in the build folder */
   return status;
 }
 
