@@ -48,11 +48,42 @@
     </libraries>
   </target>
 
-  <target name="clang-sanitizer"
-    compiler="clang++"
+  <target name="clang-sanitizer" compiler="clang++"
     macros="__linux__"
     compflags="-g -DTARGETID=10 &warnings; -pipe -march=native -std=c++14 -fsanitize=address,undefined -fsanitize-address-use-after-scope -fno-sanitize-recover=address,undefined -I."
     linkflags="-fsanitize=address,undefined -fsanitize-address-use-after-scope -fno-sanitize-recover=address,undefined -fuse-ld=lld"
+  >
+    &binaries;
+    <libraries>
+      <item name="cryptopp">
+        <libs><item pattern="cryptopp/*.h" libs="-lcryptopp -lpthread"/></libs>
+      </item>
+      <item name="rest_apis">
+        <libs><item pattern="cpprest/*.h" libs="-lboost_system -lcrypto -lssl -lcpprest -lpthread"/></libs>
+      </item>
+    </libraries>
+  </target>
+
+  <target name="clang-debug" compiler="clang++"
+    macros="__linux__"
+    compflags="-g3 -DTARGETID=3 &warnings; -pipe -march=native -std=c++14 -I."
+    linkflags="-fuse-ld=lld"
+  >
+    &binaries;
+    <libraries>
+      <item name="cryptopp">
+        <libs><item pattern="cryptopp/*.h" libs="-lcryptopp -lpthread"/></libs>
+      </item>
+      <item name="rest_apis">
+        <libs><item pattern="cpprest/*.h" libs="-lboost_system -lcrypto -lssl -lcpprest -lpthread"/></libs>
+      </item>
+    </libraries>
+  </target>
+
+  <target name="clang-release" compiler="clang++"
+    macros="__linux__"
+    compflags="-O2 -DTARGETID=2 -DNDEBUG &warnings; -pipe -march=native -std=c++14 -I."
+    linkflags="-fuse-ld=lld -s"
   >
     &binaries;
     <libraries>
