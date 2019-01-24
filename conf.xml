@@ -1,10 +1,4 @@
 <?subst/warnings/-Wall -Wextra -Wnon-virtual-dtor -Werror=delete-non-virtual-dtor?>
-<?subst/googleapis/
-    <item pattern="googleapis/client/transport/curl_http_transport" libs="-libgoogleapis_curl_http"/>
-    <item pattern="googleapis/client/transport/http_transport" libs="-libgoogleapis_http"/>
-    <item pattern="googleapis/client/auth/oauth2_authorization" libs="-libgoogleapis_oauth2"/>
-?>
-
 <?subst/binaries/<binaries>
       <multiple main="Progs/*.cpp"/>
       <multiple target="tests" main="*/Tests/*.cpp" prefix="test_"/>
@@ -14,27 +8,59 @@
 <configuration
   prefix="build"
   source_extensions=".cpp .rc"
-  includes="Libraries"
   sources="
     CryptoFile
+    CryptoFile/Auth
     Progs
   "
 >
   <target name="gcc-release"
     compiler="g++"
     macros="__linux__"
-    compflags="-O2 -DTARGETID=0 -DNDEBUG &warnings; -pipe -march=native -std=c++14 -I. -ILibraries"
+    compflags="-O2 -DTARGETID=0 -DNDEBUG &warnings; -pipe -march=native -std=c++14 -I."
     linkflags="-fuse-ld=gold -s"
   >
     &binaries;
     <libraries>
-      <item name="googleapis"
-        compflags="-I$(HOME)/google-api-client-cpp"
-        linkflags="-L$(HOME)/google-api-client-cpp/lib"
-      >
-      <libs>
-        &googleapis;
-      </libs>
+      <item name="cryptopp">
+        <libs><item pattern="cryptopp/*.h" libs="-lcryptopp -lpthread"/></libs>
+      </item>
+      <item name="rest_apis">
+        <libs><item pattern="cpprest/*.h" libs="-lboost_system -lcrypto -lssl -lcpprest -lpthread"/></libs>
+      </item>
+    </libraries>
+  </target>
+
+  <target name="gcc-debug"
+    compiler="g++"
+    macros="__linux__"
+    compflags="-g -DTARGETID=1 &warnings; -pipe -march=native -std=c++14 -I."
+    linkflags="-g -fuse-ld=gold"
+  >
+    &binaries;
+    <libraries>
+      <item name="cryptopp">
+        <libs><item pattern="cryptopp/*.h" libs="-lcryptopp -lpthread"/></libs>
+      </item>
+      <item name="rest_apis">
+        <libs><item pattern="cpprest/*.h" libs="-lboost_system -lcrypto -lssl -lcpprest -lpthread"/></libs>
+      </item>
+    </libraries>
+  </target>
+
+  <target name="clang-sanitizer"
+    compiler="clang++"
+    macros="__linux__"
+    compflags="-g -DTARGETID=10 &warnings; -pipe -march=native -std=c++14 -fsanitize=address,undefined -fsanitize-address-use-after-scope -fno-sanitize-recover=address,undefined -I."
+    linkflags="-fsanitize=address,undefined -fsanitize-address-use-after-scope -fno-sanitize-recover=address,undefined -fuse-ld=lld"
+  >
+    &binaries;
+    <libraries>
+      <item name="cryptopp">
+        <libs><item pattern="cryptopp/*.h" libs="-lcryptopp -lpthread"/></libs>
+      </item>
+      <item name="rest_apis">
+        <libs><item pattern="cpprest/*.h" libs="-lboost_system -lcrypto -lssl -lcpprest -lpthread"/></libs>
       </item>
     </libraries>
   </target>
