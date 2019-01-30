@@ -10,13 +10,14 @@ ServiceAuthenticator::ServiceAuthenticator(std::string auth_endpoint,
                                            std::string client_secrets,
                                            std::string redirect_uri,
                                            std::string scope)
-    : m_listener{redirect_uri}, m_oauth2_config{client_id,     client_secrets,
-                                                auth_endpoint, access_endpoint,
-                                                redirect_uri,  scope} {
+    : m_oauth2_config{client_id,       client_secrets, auth_endpoint,
+                      access_endpoint, redirect_uri,   scope},
+      m_listener{new experimental::listener::http_listener{redirect_uri}} {
   // Add handler to the listener that read the authorization token form the
   // redirect_uri and trade it for the access and refresh tokens.
-  std::cerr << "BEFORE SUPPORT\n";
-  m_listener.support([=](web::http::http_request request) -> void {
+  // NOTE: since the try{} catch only one exception if multiple are thrown
+  // only the first one is caught while the second one kills the program.
+  m_listener->support([=](web::http::http_request request) -> void {
     if (request.request_uri().path() == U("/") &&
         not request.request_uri().query().empty()) {
       m_resplock.lock();
@@ -36,9 +37,7 @@ ServiceAuthenticator::ServiceAuthenticator(std::string auth_endpoint,
       request.reply(status_codes::NotFound, U("Not found."));
     }
   });
-  std::cerr << "AFTER SUPPORT\n";
-  m_listener.open();
-  std::cerr << "AFTER WAIT\n";
+  m_listener->open().wait();
 
   // We ask the user's consent to access their storage service by
   // redirecting on the default browser to the access link for oauth2
@@ -48,15 +47,12 @@ ServiceAuthenticator::ServiceAuthenticator(std::string auth_endpoint,
   auto auth_uri = m_oauth2_config.build_authorization_uri(true);
   tools::open_browser(auth_uri);
   auto task = pplx::create_task(m_task_completion_event);
-  task.wait();
   try {
-    if (task.is_done()) {
-      task.get();
-      std::cerr << "User succesfully authenticated\n";
-    }
+    task.wait();
+    std::cerr << "user authenticated\n";
   } catch (pplx::invalid_operation &e) {
     std::cerr << e.what() << '\n';
   }
-}
+} // namespace auth
 } // namespace auth
 } // namespace session
