@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main(int argc, const char *argv[]) {
-  std::ifstream file("Sources/CryptoFile/crypto_file_banner");
+  std::ifstream file("Resources/CryptoFile/crypto_file_banner");
   std::cout << file.rdbuf() << '\n';
 
   if (argc != 2) {
