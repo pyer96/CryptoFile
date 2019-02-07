@@ -19,7 +19,9 @@ public:
             "http://localhost:8889/",
             "https://www.googleapis.com/auth/drive",
         } {}
-  virtual int upload_file(std::string file_path) override;
+  virtual web::json::value upload_file(std::vector<std::uint8_t> file_data,
+                                       std::string file_name) override;
+  std::vector<std::uint8_t> download_file(std::string cloud_file_id);
 };
 } // namespace session
 #endif

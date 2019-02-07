@@ -14,9 +14,11 @@ public:
   auto id() const { return m_original_file_id; }
   const auto &checksum() const { return m_checksum; }
   const auto &name() const { return m_name; }
+  void set_id(int original_file_id) { m_original_file_id = original_file_id; }
   void set_checksum(std::string checksum) { m_checksum = checksum; }
   void set_name(std::string name) { m_name = name; }
   void save();
+  void print_members();
 };
 
 } // namespace db

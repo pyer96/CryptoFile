@@ -2,6 +2,7 @@
 #include "CryptoFile/Db/Database.hpp"
 
 #include <fmt/format.h>
+#include <iostream>
 
 namespace db {
 
@@ -18,6 +19,10 @@ void OriginalFile::save() {
   } else {
     std::cerr << fmt::format("Error: {}", sqlite3_errmsg(db));
   }
+  sqlite3_finalize(stmt);
 }
-
+void OriginalFile::print_members() {
+  std::cerr << fmt::format("original_file_id = {}\nchecksum = {}\nname = {}\n",
+                           m_original_file_id, m_checksum, m_name);
+}
 } // namespace db

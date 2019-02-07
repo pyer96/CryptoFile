@@ -1,66 +1,83 @@
+#include "CryptoFile/Db/OriginalFile.hpp"
+#include "CryptoFile/Db/Section.hpp"
 #include <fmt/format.h>
 #include <iostream>
 #include <sqlite3.h>
 #include <vector>
 
-class OriginalFile {
-private:
-  int m_id;
-  std::string m_checksum;
-  std::string m_name;
-//  std::vector<Section*> m_sections;
-
-public:
-  OriginalFile(int id, std::string checksum, std::string name)
-      : m_id{id}, m_checksum{checksum}, m_name{name} {}
-  auto id() const { return m_id; }
-  const auto &checksum() const { return m_checksum; }
-  const auto &name() const { return m_name; }
-  void save();
-};
-
-void OriginalFile::save() {
-  auto stmt = fmt::format(
-      "INSERT INTO original_file([checksum], [name]) VALUES ('{}', '{}');",
-      m_checksum, m_name);
-}
-
 int main() {
   sqlite3 *db;
   sqlite3_stmt *stmt;
-  std::vector<OriginalFile> m_original_files;
+  std::vector<db::OriginalFile> m_original_files;
+  std::vector<db::Section> m_sections;
 
   if (sqlite3_open_v2("Resources/crypto-file.db", &db,
                       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, nullptr)) {
     std::cerr << "Error while opening database: " << sqlite3_errmsg(db) << '\n';
     return 1;
   }
-  std::string query = "SELECT * FROM [original_file];";
-  sqlite3_prepare(db, query.c_str(), query.size(), &stmt, nullptr);
-  auto done = false;
-  while (not done) {
-    switch (sqlite3_step(stmt)) {
-    case SQLITE_ROW:
-      std::cerr << sqlite3_column_bytes(stmt, 0) << " "
-                << sqlite3_column_int(stmt, 0) << ' '
-                << sqlite3_column_text(stmt, 1) << ' '
-                << sqlite3_column_text(stmt, 2) << '\n';
-      m_original_files.emplace_back(
-          sqlite3_column_int(stmt, 0),
-          reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)),
-          reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
-      break;
-    case SQLITE_DONE:
-      done = true;
-      break;
-    default:
-      std::cerr << "Error: " << sqlite3_errmsg(db) << '\n';
+  {
+    std::string query = "SELECT * FROM [original_file];";
+    sqlite3_prepare(db, query.c_str(), query.size(), &stmt, nullptr);
+    auto done = false;
+    while (not done) {
+      switch (sqlite3_step(stmt)) {
+      case SQLITE_ROW: {
+        m_original_files.emplace_back();
+        auto &last = m_original_files.back();
+        last.set_id(sqlite3_column_int(stmt, 0));
+        last.set_checksum(
+            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
+        last.set_name(
+            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
+      } break;
+      case SQLITE_DONE:
+        done = true;
+        break;
+      default:
+        std::cerr << "Error: " << sqlite3_errmsg(db) << '\n';
+      }
+    }
+    for (const auto &f : m_original_files) {
+      std::cerr << fmt::format(
+          "original_file_id = {}\nchecksum = {}\nname = {}\n\n", f.id(),
+          f.checksum(), f.name());
+    }
+  }
+  {
+    std::string query = "SELECT * FROM [section];";
+    sqlite3_prepare(db, query.c_str(), query.size(), &stmt, nullptr);
+    auto done = false;
+    while (not done) {
+      switch (sqlite3_step(stmt)) {
+      case SQLITE_ROW: {
+        m_sections.emplace_back();
+        auto &last = m_sections.back();
+        last.set_id(sqlite3_column_int(stmt, 0));
+        last.set_original_file_id(sqlite3_column_int(stmt, 1));
+        last.set_name(
+            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
+        last.set_order(sqlite3_column_int(stmt, 3));
+        last.set_cloud_service_id(sqlite3_column_int(stmt, 4));
+        last.set_section_cloud_id(
+            reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5)));
+      } break;
+      case SQLITE_DONE:
+        done = true;
+        break;
+      default:
+        std::cerr << "Error: " << sqlite3_errmsg(db) << '\n';
+      }
+    }
+    for (const auto &s : m_sections) {
+      std::cerr << fmt::format(
+          "section_id = {}\noriginal_file_id = {}\nname = {}\norder = {}\n"
+          "cloud_service_id = {}\nsection_cloud_id = {}\n\n",
+          s.id(), s.original_file_id(), s.name(), s.order(),
+          s.cloud_service_id(), s.section_cloud_id());
     }
   }
   sqlite3_close(db);
   std::cerr << "DATABASE CLOSED\n";
-  for (const auto &f : m_original_files) {
-    std::cerr << f.id() << '\n' << f.checksum() << '\n' << f.name() << "\n\n";
-  }
   return 0;
 }

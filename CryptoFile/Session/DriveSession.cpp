@@ -3,40 +3,56 @@
 #include <cpprest/http_client.h>
 
 namespace session {
-int DriveSession::upload_file(std::string file_path) {
+web::json::value DriveSession::upload_file(std::vector<std::uint8_t> file_data,
+                                           std::string file_name) {
   std::cerr << "upload_file\n";
   web::http::client::http_client client("https://www.googleapis.com",
                                         http_client_config());
   auto request = http_request(methods::POST);
   request.set_request_uri("/upload/drive/v3/files");
 
-  std::vector<uint8_t> filedata;
-  std::size_t filesize;
-  try {
-    std::ifstream file{file_path, std::ios::binary};
-    file.unsetf(std::ios::skipws);
-    file.seekg(0, std::ios::end);
-    filesize = file.tellg();
-    file.seekg(0, std::ios::beg);
-    filedata.insert(filedata.begin(), std::istream_iterator<uint8_t>(file),
-                    std::istream_iterator<uint8_t>());
-  } catch (const std::exception &e) {
-    std::cerr << "Error: " << e.what() << '\n';
-    return 1;
-  }
-
   auto &head = request.headers();
   head.set_content_type("application/octet-stream");
-  head.set_content_length(filesize);
+  head.set_content_length(file_data.size());
   head.add("uploadType", "media");
-  request.set_body(filedata);
+  head.add("name", file_name);
+  request.set_body(file_data);
 
+  web::json::value response_json;
   client.request(request)
-      .then([=](http_response response) {
-        std::cerr << "response:\n" << response.extract_string().get() << '\n';
+      .then([=, &response_json](http_response response) {
+        auto task = response.extract_json();
+        task.wait();
+        response_json = task.get();
+        std::cerr << "resp = \n{\n" << response_json.serialize() << "\n}\n";
       })
       .wait();
-  return 0;
+  return response_json;
 }
 
+std::vector<std::uint8_t>
+DriveSession::download_file(std::string cloud_file_id) {
+  web::http::client::http_client downfile("https://www.googleapis.com",
+                                          http_client_config());
+  std::cerr << "cloud_file_id = " << cloud_file_id << '\n';
+  auto down_request = http_request(methods::GET);
+  auto uri = uri_builder("/drive/v3/files/");
+  uri.append_path(cloud_file_id);
+  uri.append_query("alt", "media");
+  down_request.set_request_uri(uri.to_uri());
+  // down_request.headers().set_content_type("text/plain");
+  // down_request.headers().add("Accept", "application/octet-stream");
+
+  std::vector<std::uint8_t> file;
+  downfile.request(down_request)
+      .then([=, &file](http_response response) {
+        auto task = response.extract_vector();
+        task.wait();
+        file = task.get();
+        std::cerr << "file.size() = " << file.size() << '\n';
+      })
+      .wait();
+
+  return file;
+}
 } // namespace session

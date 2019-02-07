@@ -18,7 +18,9 @@ public:
                  std::string redirect_uri, std::string scope = std::string());
   virtual ~ServiceSession() {}
   const auto &http_client_config() const { return m_http_client_config; }
-  virtual int upload_file(std::string file_path) = 0;
+  virtual web::json::value upload_file(std::vector<std::uint8_t> file_data,
+                                       std::string file_name) = 0;
+  web::json::value upload_file(std::string file_path);
 };
 } // namespace session
 
