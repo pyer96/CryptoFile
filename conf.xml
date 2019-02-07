@@ -5,19 +5,34 @@
       <multiple target="tests" main="*/*/Tests/*.cpp" prefix="test_"/>
     </binaries>
 ?>
+<?subst/boost/
+    <item pattern="boost/"                libs=""/>
+    <item pattern="boost/date_time"       libs="-lboost_date_time -lboost_system"/>
+    <item pattern="boost/filesystem"      libs="-lboost_filesystem -lboost_system"/>
+    <item pattern="boost/iostreams"       libs="-lboost_iostreams -lboost_system"/>
+    <item pattern="boost/program_options" libs="-lboost_program_options -lboost_system"/>
+    <item pattern="boost/thread"          libs="-lboost_thread -lboost_chrono -lboost_system -lrt -lpthread"/>
+    <item pattern="boost/interprocess"    libs="-lboost_date_time -lboost_system -lrt -lpthread"/>
+    <item pattern="boost/asio"            libs="-lboost_system -lpthread"/>
+    <item pattern="boost/random/random_device.hpp" libs="-lboost_random -lboost_system"/>
+?>
 <configuration
   prefix="build"
-  source_extensions=".cpp .rc"
+  source_extensions=".cpp .cc .rc"
+  includes="Libraries"
   sources="
     CryptoFile
-    CryptoFile/Auth
+    CryptoFile/Session
+    CryptoFile/Session/Auth
+    CryptoFile/Db
     Progs
+    Libraries/* Libraries/*/*
   "
 >
   <target name="gcc-release"
     compiler="g++"
     macros="__linux__"
-    compflags="-O2 -DTARGETID=0 -DNDEBUG &warnings; -pipe -march=native -std=c++14 -I."
+    compflags="-O2 -DTARGETID=0 -DNDEBUG &warnings; -pipe -march=native -std=c++17 -I. -ILibraries"
     linkflags="-fuse-ld=gold -s"
   >
     &binaries;
@@ -28,13 +43,29 @@
       <item name="rest_apis">
         <libs><item pattern="cpprest/*.h" libs="-lboost_system -lcrypto -lssl -lcpprest -lpthread"/></libs>
       </item>
+      <item name="boost">
+        <libs>
+          &boost;
+        </libs>
+      </item>
+      <item name="sqlite" compflags="-DSQLITE_HAS_CODEC">
+        <libs><item pattern="(sqlite3|sqlite3ext)\.h" libs="-l/usr/lib64/libsqlite3.so -pthread"/></libs>
+      </item>
+      <item name="boost">
+        <libs>
+          &boost;
+        </libs>
+      </item>
+      <item name="fmt">
+        <libs><item pattern="fmt/*.h" libs="-l/usr/lib64/libfmt.so"/></libs>
+      </item>
     </libraries>
   </target>
 
   <target name="gcc-debug"
     compiler="g++"
     macros="__linux__"
-    compflags="-g -DTARGETID=1 &warnings; -pipe -march=native -std=c++14 -I."
+    compflags="-g -DTARGETID=1 &warnings; -pipe -march=native -std=c++17 -I. -ILibraries"
     linkflags="-g -fuse-ld=gold"
   >
     &binaries;
@@ -45,12 +76,23 @@
       <item name="rest_apis">
         <libs><item pattern="cpprest/*.h" libs="-lboost_system -lcrypto -lssl -lcpprest -lpthread"/></libs>
       </item>
+      <item name="sqlite" compflags="-DSQLITE_HAS_CODEC">
+        <libs><item pattern="(sqlite3|sqlite3ext)\.h" libs=" /usr/lib64/libsqlite3.so -pthread"/></libs>
+      </item>
+      <item name="boost">
+        <libs>
+          &boost;
+        </libs>
+      </item>
+      <item name="fmt">
+        <libs><item pattern="fmt/*.h" libs=" /usr/lib64/libfmt.so"/></libs>
+      </item>
     </libraries>
   </target>
 
   <target name="clang-sanitizer" compiler="clang++"
     macros="__linux__"
-    compflags="-g -DTARGETID=10 &warnings; -pipe -march=native -std=c++14 -fsanitize=address,undefined -fsanitize-address-use-after-scope -fno-sanitize-recover=address,undefined -I."
+    compflags="-g -DTARGETID=10 &warnings; -pipe -march=native -std=c++17 -fsanitize=address,undefined -fsanitize-address-use-after-scope -fno-sanitize-recover=address,undefined -I. -ILibraries"
     linkflags="-fsanitize=address,undefined -fsanitize-address-use-after-scope -fno-sanitize-recover=address,undefined -fuse-ld=lld"
   >
     &binaries;
@@ -61,12 +103,20 @@
       <item name="rest_apis">
         <libs><item pattern="cpprest/*.h" libs="-lboost_system -lcrypto -lssl -lcpprest -lpthread"/></libs>
       </item>
+      <item name="boost">
+        <libs>
+          &boost;
+        </libs>
+      </item>
+      <item name="sqlite" compflags="-DSQLITE_HAS_CODEC">
+        <libs><item pattern="(sqlite3|sqlite3ext)\.h" libs=" /usr/lib64/libsqlite3.so -pthread"/></libs>
+      </item>
     </libraries>
   </target>
 
   <target name="clang-debug" compiler="clang++"
     macros="__linux__"
-    compflags="-g3 -DTARGETID=3 &warnings; -pipe -march=native -std=c++14 -I."
+    compflags="-g3 -DTARGETID=3 &warnings; -pipe -march=native -std=c++17 -I. -ILibraries"
     linkflags="-fuse-ld=lld"
   >
     &binaries;
@@ -77,12 +127,23 @@
       <item name="rest_apis">
         <libs><item pattern="cpprest/*.h" libs="-lboost_system -lcrypto -lssl -lcpprest -lpthread"/></libs>
       </item>
+      <item name="fmt">
+        <libs><item pattern="fmt/*.h" libs="/usr/lib64/libfmt.so"/></libs>
+      </item>
+      <item name="boost">
+        <libs>
+          &boost;
+        </libs>
+      </item>
+      <item name="sqlite" compflags="-DSQLITE_HAS_CODEC">
+        <libs><item pattern="(sqlite3|sqlite3ext)\.h" libs=" /usr/lib64/libsqlite3.so -pthread"/></libs>
+      </item>
     </libraries>
   </target>
 
   <target name="clang-release" compiler="clang++"
     macros="__linux__"
-    compflags="-O2 -DTARGETID=2 -DNDEBUG &warnings; -pipe -march=native -std=c++14 -I."
+    compflags="-O2 -DTARGETID=2 -DNDEBUG &warnings; -pipe -march=native -std=c++17 -I. -ILibraries"
     linkflags="-fuse-ld=lld -s"
   >
     &binaries;
@@ -92,6 +153,14 @@
       </item>
       <item name="rest_apis">
         <libs><item pattern="cpprest/*.h" libs="-lboost_system -lcrypto -lssl -lcpprest -lpthread"/></libs>
+      </item>
+      <item name="boost">
+        <libs>
+          &boost;
+        </libs>
+      </item>
+      <item name="sqlite" compflags="-DSQLITE_HAS_CODEC">
+        <libs><item pattern="(sqlite3|sqlite3ext)\.h" libs=" /usr/lib64/libsqlite3.so -pthread"/></libs>
       </item>
     </libraries>
   </target>
