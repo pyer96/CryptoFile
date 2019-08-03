@@ -25,7 +25,7 @@ int main(int argc, const char *argv[]) {
   // change to guarantee security
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock key(
-      CryptoPP::AES::DEFAULT_KEYLENGTH); // 16 bytes (128 bits)
+      CryptoPP::AES::MAX_KEYLENGTH); // 16 bytes (128 bits)
   CryptoPP::byte iv[CryptoPP::AES::DEFAULT_BLOCKSIZE];
   prng.GenerateBlock(key, key.size());
   prng.GenerateBlock(iv, sizeof(iv));
