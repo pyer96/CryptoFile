@@ -26,10 +26,10 @@ int main(int argc, const char *argv[]) {
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock key(
       CryptoPP::AES::MAX_KEYLENGTH); // 16 bytes (128 bits)
-  CryptoPP::byte iv[CryptoPP::AES::DEFAULT_BLOCKSIZE];
+  CryptoPP::byte iv[CryptoPP::AES::BLOCKSIZE];
   prng.GenerateBlock(key, key.size());
   prng.GenerateBlock(iv, sizeof(iv));
-  std::cerr << "DEFAULT_BLOCKSIZE = " << CryptoPP::AES::DEFAULT_BLOCKSIZE
+  std::cerr << "DEFAULT_BLOCKSIZE = " << CryptoPP::AES::BLOCKSIZE
             << "\nBLOCKSIZE = " << CryptoPP::AES::BLOCKSIZE
             << "\nDEFAULT_KEYLENGHT = " << CryptoPP::AES::DEFAULT_KEYLENGTH
             << "\nMAX_KEYLENGHT = " << CryptoPP::AES::MAX_KEYLENGTH << '\n';
@@ -63,9 +63,9 @@ int main(int argc, const char *argv[]) {
   result.resize(cs.TotalPutLength());
   std::cerr << "result.size() = " << result.size() << '\n';
   CryptoPP::HexEncoder encoder(new CryptoPP::FileSink(std::cout));
-  //  std::cout << "Chiper text:\n";
-  //  encoder.Put(result.data(), result.size());
-  //  encoder.MessageEnd();
+  std::cout << "Chiper text:\n";
+ // encoder.Put(result.data(), result.size());
+ // encoder.MessageEnd();
   std::cout << '\n';
   tools::write_2_file(
       result, "/home/umberto/Progetti/CryptoFile/elefante-crypted.jpeg");
@@ -91,9 +91,9 @@ int main(int argc, const char *argv[]) {
   std::cerr << "decrypted_file.size() = " << decrypted_file.size() << '\n';
   decrypted_file.resize(rs.TotalPutLength());
   std::cerr << "decrypted_file.size() = " << decrypted_file.size() << '\n';
-  //  std::cout << "Recovered text:\n";
-  //  encoder.Put(decrypted_file.data(), decrypted_file.size());
-  //  encoder.MessageEnd();
+  std::cout << "Recovered text:\n";
+  encoder.Put(decrypted_file.data(), decrypted_file.size());
+  encoder.MessageEnd();
   std::cout << '\n';
   tools::write_2_file(
       decrypted_file,
