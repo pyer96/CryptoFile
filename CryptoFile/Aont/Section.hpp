@@ -14,23 +14,52 @@
 namespace aont {
 class Section {
 private:
-  gsl::span<std::uint8_t> m_data_section;
-  //  std::vector<std::uint8_t> m_encrypteddata;
-  std::vector<uint8_t> m_transformed_data;
-  std::vector<uint8_t> m_hash;
-  // CryptoPP::SecByteBlock m_key;
-  // CryptoPP::byte m_iv;
+public:
+  virtual ~Section() {}
+  virtual const std::vector<std::uint8_t> &get_data() = 0;
+};
+
+class LastSection : public Section {
+private:
+  std::vector<std::uint8_t> m_section_data;
 
 public:
-  Section(gsl::span<std::uint8_t> sec, CryptoPP::SecByteBlock &key,
-          CryptoPP::byte *iv);
-  ~Section(){};
+  LastSection(std::vector<uint8_t> data);
+  const std::vector<std::uint8_t> &get_data() override {
+    return m_section_data;
+  }
+};
 
-  const auto &get_hash() const { return m_hash; };
+class EncryptSection : public Section {
+private:
+  std::vector<std::uint8_t> m_hash;
+  gsl::span<std::uint8_t> m_data_section;
+  std::vector<std::uint8_t> m_encrypted_data;
+
+public:
+  EncryptSection(gsl::span<std::uint8_t> sec, CryptoPP::SecByteBlock &key);
+  const std::vector<std::uint8_t> &get_data() override {
+    return m_encrypted_data;
+  }
+  void encrypt_data(CryptoPP::SecByteBlock &key);
+  const std::vector<std::uint8_t> &get_hash() const { return m_hash; }
   void calculate_hash();
-  void print_section_data() const;
-  void print_transformed_data() const;
-  void encrypt_data(CryptoPP::SecByteBlock &key, CryptoPP::byte *iv);
+};
+
+class DecryptSection : public Section {
+private:
+  gsl::span<std::uint8_t> m_data_section;
+  std::vector<std::uint8_t> m_decrypted_data;
+  std::vector<std::uint8_t> m_hash;
+
+public:
+  DecryptSection(gsl::span<std::uint8_t> data_section);
+  const std::vector<std::uint8_t> &get_data() override {
+    return m_decrypted_data;
+  }
+  void decrypt_data(CryptoPP::SecByteBlock &key);
+  const std::vector<std::uint8_t> &get_hash() const { return m_hash; }
+  void calculate_hash();
 };
 } // namespace aont
 #endif
