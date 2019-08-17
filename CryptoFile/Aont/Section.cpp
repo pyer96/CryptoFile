@@ -9,6 +9,7 @@ EncryptSection::EncryptSection(gsl::span<std::uint8_t> data_section,
                                CryptoPP::SecByteBlock &key)
     : m_data_section{std::move(data_section)} {
   encrypt_data(key);
+  m_digest_hash.resize(CryptoPP::SHA256::DIGESTSIZE);
   calculate_hash();
 }
 void EncryptSection::encrypt_data(CryptoPP::SecByteBlock &key) {
@@ -19,7 +20,6 @@ void EncryptSection::encrypt_data(CryptoPP::SecByteBlock &key) {
   CryptoPP::ArraySink cs(&m_encrypted_data[0], m_encrypted_data.size());
   CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption encryptor;
   encryptor.SetKeyWithIV(key, key.size(), iv);
-
   try {
     CryptoPP::ArraySource(
         m_data_section.data(), m_data_section.size(), true,
@@ -36,23 +36,22 @@ void EncryptSection::encrypt_data(CryptoPP::SecByteBlock &key) {
 void EncryptSection::calculate_hash() {
   CryptoPP::SHA256 hash;
 
-  CryptoPP::ArraySource(
-      m_encrypted_data.data(), m_encrypted_data.size(), true,
-      new CryptoPP::HashFilter(
-          hash, new CryptoPP::HexEncoder(new CryptoPP::VectorSink(m_hash))));
+  hash.CalculateDigest(m_digest_hash.data(), m_encrypted_data.data(),
+                       m_encrypted_data.size());
 }
 
 DecryptSection::DecryptSection(gsl::span<std::uint8_t> data_section)
     : m_data_section{std::move(data_section)} {
+  m_digest_hash.resize(CryptoPP::SHA256::DIGESTSIZE);
   calculate_hash();
 }
 
 void DecryptSection::decrypt_data(CryptoPP::SecByteBlock &key) {
-  m_decrypted_data.resize(m_data_section.size() + CryptoPP::AES::BLOCKSIZE);
   CryptoPP::byte iv[CryptoPP::AES::BLOCKSIZE] = {'1', '2', '3', '4', '5', '6',
                                                  '7', '8', '9', '0', '1', '2',
                                                  '3', '4', '5', '6'};
-  CryptoPP::ArraySink rs(&m_data_section[0], m_data_section.size());
+  m_decrypted_data.resize(m_data_section.size());
+  CryptoPP::ArraySink rs(&m_decrypted_data[0], m_decrypted_data.size());
   CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption decryptor;
   decryptor.SetKeyWithIV(key, key.size(), iv);
   try {
@@ -71,9 +70,7 @@ void DecryptSection::decrypt_data(CryptoPP::SecByteBlock &key) {
 void DecryptSection::calculate_hash() {
   CryptoPP::SHA256 hash;
 
-  CryptoPP::ArraySource(
-      m_data_section.data(), m_data_section.size(), true,
-      new CryptoPP::HashFilter(
-          hash, new CryptoPP::HexEncoder(new CryptoPP::VectorSink(m_hash))));
+  hash.CalculateDigest(m_digest_hash.data(), m_data_section.data(),
+                       m_data_section.size());
 }
 } // namespace aont
