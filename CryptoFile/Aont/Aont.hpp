@@ -1,34 +1,21 @@
-#ifndef __Aont__
-#define __Aont__
+#ifndef __CryptoFile__Aont__Aont__
+#define __CryptoFile__Aont__Aont__
 
-#include "Section.hpp"
+#include "CryptoFile/Aont/Section.hpp"
 
 #include <cstdint>
 #include <memory>
-#include <string>
 #include <vector>
 
+namespace cryptofile {
 namespace aont {
-class Aont {
-private:
-  std::unique_ptr<std::vector<std::uint8_t>> m_data;
-  std::size_t m_sections_number;
-  std::vector<Section> m_sections;
+void aont_mask(std::vector<std::uint8_t> &data, std::size_t sections_number,
+               std::function<void(
+                   std::vector<std::unique_ptr<cryptofile::aont::Section>> &)>
+                   callback);
 
-public:
-  Aont(std::unique_ptr<std::vector<uint8_t>> data, std::size_t sections);
-  void print_sections() {
-    for (const auto &sec : m_sections) {
-      sec.print_section_data();
-      std::cout << '\n';
-      sec.print_transformed_data();
-      std::cout << '\n';
-      sec.print_transformed_data();
-      //  std::cout << "sha256 : " << sec.get_hash().data();
-      //  std::cout << "\n\n";
-    }
-  }
-};
-
+void aont_restore(std::vector<std::vector<std::uint8_t>> &sections_data,
+                  std::function<void(std::vector<std::uint8_t> &)> callback);
 } // namespace aont
+} // namespace cryptofile
 #endif
