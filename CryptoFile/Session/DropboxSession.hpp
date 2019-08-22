@@ -1,8 +1,9 @@
-#ifndef __Dropbox__Session__
-#define __Dropbox__Session__
+#ifndef __CryptoFile__Session__Dropbox__Session__
+#define __CryptoFile__Session__Dropbox__Session__
 
 #include "CryptoFile/Session/ServiceSession.hpp"
 
+namespace cryptofile {
 namespace session {
 class DropboxSession : public ServiceSession {
 public:
@@ -17,6 +18,6 @@ public:
 };
 
 } // namespace session
-
+} // namespace cryptofile
 #endif
 

@@ -2,6 +2,7 @@
 
 #include "Tools/OpenBrowser.hpp"
 
+namespace cryptofile {
 namespace session {
 namespace auth {
 ServiceAuthenticator::ServiceAuthenticator(std::string auth_endpoint,
@@ -53,6 +54,7 @@ ServiceAuthenticator::ServiceAuthenticator(std::string auth_endpoint,
   } catch (pplx::invalid_operation &e) {
     std::cerr << e.what() << '\n';
   }
-} // namespace auth
+}
 } // namespace auth
 } // namespace session
+} // namespace cryptofile

@@ -2,6 +2,7 @@
 
 #include <cpprest/http_client.h>
 
+namespace cryptofile {
 namespace session {
 web::json::value DriveSession::upload_file(std::vector<std::uint8_t> file_data,
                                            std::string file_name) {
@@ -56,3 +57,4 @@ DriveSession::download_file(std::string cloud_file_id) {
   return file;
 }
 } // namespace session
+} // namespace cryptofile

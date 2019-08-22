@@ -1,9 +1,10 @@
-#ifndef __Database__
-#define __Database__
+#ifndef __CryptoFile__Db__Database__
+#define __CryptoFile__Db__Database__
 
 #include <iostream>
 #include <sqlite3.h>
 
+namespace cryptofile {
 namespace db {
 class Database {
 private:
@@ -27,5 +28,6 @@ public:
   auto db() { return m_db; }
 };
 } // namespace db
+} // namespace cryptofile
 #endif
 

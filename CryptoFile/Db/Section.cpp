@@ -4,6 +4,7 @@
 #include <fmt/format.h>
 #include <sqlite3.h>
 
+namespace cryptofile {
 namespace db {
 void Section::save() {
   sqlite3_stmt *stmt;
@@ -32,3 +33,4 @@ void Section::print_members() {
       m_section_cloud_id);
 }
 } // namespace db
+} // namespace cryptofile

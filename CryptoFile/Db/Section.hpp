@@ -1,8 +1,9 @@
-#ifndef __Section__
-#define __Section__
+#ifndef __CryptoFile__Db__Section__
+#define __CryptoFile__Db__Section__
 
 #include <string>
 
+namespace cryptofile {
 namespace db {
 class Section {
 private:
@@ -37,5 +38,5 @@ public:
   void print_members();
 };
 } // namespace db
-
+} // namespace cryptofile
 #endif

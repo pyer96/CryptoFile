@@ -4,6 +4,7 @@
 #include <fmt/format.h>
 #include <iostream>
 
+namespace cryptofile {
 namespace db {
 
 void OriginalFile::save() {
@@ -26,3 +27,4 @@ void OriginalFile::print_members() {
                            m_original_file_id, m_checksum, m_name);
 }
 } // namespace db
+} // namespace cryptofile

@@ -2,6 +2,7 @@
 
 #include <cpprest/json.h>
 
+namespace cryptofile {
 namespace session {
 web::json::value
 DropboxSession::upload_file(std::vector<std::uint8_t> file_data,
@@ -64,3 +65,4 @@ DropboxSession::download_file(std::string cloud_file_id) {
 }
 
 } // namespace session
+} // namespace cryptofile

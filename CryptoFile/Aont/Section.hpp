@@ -1,5 +1,5 @@
-#ifndef __Section__
-#define __Section__
+#ifndef __CryptoFile__Aont__Section__
+#define __CryptoFile__Aont__Section__
 
 #include <cryptopp/aes.h>
 #include <cryptopp/files.h>
@@ -11,7 +11,9 @@
 #include <gsl/span>
 #include <vector>
 
+namespace cryptofile {
 namespace aont {
+
 class Section {
 private:
 public:
@@ -62,5 +64,6 @@ public:
   void calculate_hash();
 };
 } // namespace aont
+} // namespace cryptofile
 #endif
 

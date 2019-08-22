@@ -2,6 +2,7 @@
 
 #include <boost/filesystem/path.hpp>
 
+namespace cryptofile {
 namespace session {
 
 ServiceSession::ServiceSession(std::string auth_endpoint,
@@ -33,3 +34,4 @@ web::json::value ServiceSession::upload_file(std::string file_path) {
   return upload_file(std::move(file_data), path.filename().c_str());
 }
 } // namespace session
+} // namespace cryptofile

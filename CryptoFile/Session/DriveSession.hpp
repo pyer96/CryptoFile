@@ -1,10 +1,11 @@
-#ifndef __Drive__Session__
-#define __Drive__Session__
+#ifndef __CryptoFile__Session__Drive__Session__
+#define __CryptoFile__Session__Drive__Session__
 
 #include "CryptoFile/Session/ServiceSession.hpp"
 
 #include <cpprest/uri_builder.h>
 
+namespace cryptofile {
 namespace session {
 class DriveSession : public ServiceSession {
 public:
@@ -24,4 +25,5 @@ public:
   std::vector<std::uint8_t> download_file(std::string cloud_file_id);
 };
 } // namespace session
+} // namespace cryptofile
 #endif

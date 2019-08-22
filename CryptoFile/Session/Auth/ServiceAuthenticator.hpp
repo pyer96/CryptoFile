@@ -1,11 +1,12 @@
-#ifndef __Service__Authenticator__
-#define __Service__Authenticator__
+#ifndef __CryptoFile__Session__Auth__Service__Authenticator__
+#define __CryptoFile__Session__Auth__Service__Authenticator__
 
 #include <cpprest/http_listener.h>
 #include <cpprest/oauth2.h>
 
 #include <memory>
 
+namespace cryptofile {
 namespace session {
 namespace auth {
 using namespace web::http;
@@ -33,4 +34,5 @@ public:
 };
 } // namespace auth
 } // namespace session
+} // namespace cryptofile
 #endif

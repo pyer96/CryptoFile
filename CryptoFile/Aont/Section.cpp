@@ -1,5 +1,5 @@
 #include "CryptoFile/Aont/Section.hpp"
-
+namespace cryptofile {
 namespace aont {
 
 LastSection::LastSection(std::vector<uint8_t> data)
@@ -35,7 +35,6 @@ void EncryptSection::encrypt_data(CryptoPP::SecByteBlock &key) {
 
 void EncryptSection::calculate_hash() {
   CryptoPP::SHA256 hash;
-
   hash.CalculateDigest(m_digest_hash.data(), m_encrypted_data.data(),
                        m_encrypted_data.size());
 }
@@ -63,14 +62,14 @@ void DecryptSection::decrypt_data(CryptoPP::SecByteBlock &key) {
     m_decrypted_data.resize(rs.TotalPutLength());
   } catch (const CryptoPP::Exception &e) {
     std::cerr << "Error: " << e.what() << '\n';
-    exit(1);
+    exit(1); //????
   }
 }
 
 void DecryptSection::calculate_hash() {
   CryptoPP::SHA256 hash;
-
   hash.CalculateDigest(m_digest_hash.data(), m_data_section.data(),
                        m_data_section.size());
 }
 } // namespace aont
+} // namespace cryptofile

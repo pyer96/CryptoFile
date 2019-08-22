@@ -1,7 +1,8 @@
-#ifndef __Original__File__
-#define __Original__File__
+#ifndef __CryptoFile__Db__Original__File__
+#define __CryptoFile__Db__Original__File__
 #include <string>
 
+namespace cryptofile {
 namespace db {
 class OriginalFile {
 private:
@@ -22,5 +23,6 @@ public:
 };
 
 } // namespace db
+} // namespace cryptofile
 #endif
 

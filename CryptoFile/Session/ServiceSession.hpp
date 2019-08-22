@@ -1,10 +1,11 @@
-#ifndef __Service__Session__
-#define __Service__Session__
+#ifndef __CryptoFile__Session__Service__Session__
+#define __CryptoFile__Session__Service__Session__
 
 #include "CryptoFile/Session/Auth/ServiceAuthenticator.hpp"
 
 #include <cpprest/http_client.h>
 
+namespace cryptofile {
 namespace session {
 using namespace web::http;
 class ServiceSession {
@@ -23,5 +24,5 @@ public:
   web::json::value upload_file(std::string file_path);
 };
 } // namespace session
-
+} // namespace cryptofile
 #endif
