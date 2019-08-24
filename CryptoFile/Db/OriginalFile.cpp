@@ -6,7 +6,6 @@
 
 namespace cryptofile {
 namespace db {
-
 void OriginalFile::save() {
   sqlite3_stmt *stmt;
   auto query_str = fmt::format("INSERT INTO original_file([checksum], "
@@ -21,7 +20,12 @@ void OriginalFile::save() {
     std::cerr << fmt::format("Error: {}", sqlite3_errmsg(db));
   }
   sqlite3_finalize(stmt);
+  for (auto &section : m_sections) { //?????
+    section->set_original_file_id(m_original_file_id);
+    section->save();
+  }
 }
+
 void OriginalFile::print_members() {
   std::cerr << fmt::format("original_file_id = {}\nchecksum = {}\nname = {}\n",
                            m_original_file_id, m_checksum, m_name);
