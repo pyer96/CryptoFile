@@ -130,8 +130,11 @@ void CryptoFileSession::restore_file_from_clouds(
   auto &sections_to_restore = file_to_restore->sections();
   std::vector<std::vector<std::uint8_t>> sections;
   sections.reserve(sections_to_restore.size());
-  for (std::size_t i = 0; i < sections.size(); ++i) {
+  std::cerr << "SIZE = " << sections.size() << '\n';
+  for (std::size_t i = 0; i < sections_to_restore.size(); ++i) {
     auto &section = sections_to_restore[i];
+    std::cerr << i << " < " << sections.size() << '\n';
+
     const auto cloud_service = std::find_if(
         m_authenticated_clouds.begin(), m_authenticated_clouds.end(),
         [cloud_id = section->cloud_service_id()](
@@ -139,6 +142,7 @@ void CryptoFileSession::restore_file_from_clouds(
           return session->get_cloud_service_id() ==
                  static_cast<db::CloudService>(cloud_id);
         });
+
     if (cloud_service == m_authenticated_clouds.end()) {
       std::cerr << "The section is stored in a cloud service that has not been "
                    "authenticated yet\n";
@@ -147,6 +151,7 @@ void CryptoFileSession::restore_file_from_clouds(
     sections.emplace(
         sections.begin() + section->order(),
         (*cloud_service)->download_file(section->section_cloud_id()));
+    std::cerr << section->name() << '\n';
   }
 
   aont::aont_restore(
