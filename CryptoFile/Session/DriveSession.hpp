@@ -23,7 +23,8 @@ public:
         } {}
   virtual web::json::value upload_file(std::vector<std::uint8_t> file_data,
                                        std::string file_name) override;
-  std::vector<std::uint8_t> download_file(std::string cloud_file_id);
+  virtual std::vector<std::uint8_t>
+  download_file(std::string cloud_file_id) override;
 };
 } // namespace session
 } // namespace cryptofile

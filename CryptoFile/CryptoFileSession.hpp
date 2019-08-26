@@ -25,7 +25,6 @@ public:
       std::size_t original_file_id,
       boost::filesystem::path restored_file_path = "/tmp/CryptoFile/");
 };
-
 } // namespace cryptofile
 
 #endif

@@ -1,5 +1,7 @@
 #include "Tools/Checksum.hpp"
 
+#include <cryptopp/base64.h>
+
 namespace tools {
 void calculate_sha256(std::vector<std::uint8_t> &data,
                       std::vector<std::uint8_t> &digest_hash) {
@@ -14,6 +16,8 @@ void calculate_sha256(std::vector<std::uint8_t> &data,
   digest_hash_buffer.resize(CryptoPP::SHA256::DIGESTSIZE);
   CryptoPP::SHA256 hash;
   hash.CalculateDigest(digest_hash_buffer.data(), data.data(), data.size());
-  digest_hash.assign(digest_hash_buffer.begin(), digest_hash_buffer.end());
+  CryptoPP::Base64Encoder encoder(new CryptoPP::StringSink(digest_hash));
+  encoder.Put(data.data(), data.size());
+  encoder.MessageEnd();
 }
 } // namespace tools

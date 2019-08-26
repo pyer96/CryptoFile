@@ -25,6 +25,8 @@ public:
   const auto &http_client_config() const { return m_http_client_config; }
   virtual web::json::value upload_file(std::vector<std::uint8_t> file_data,
                                        std::string file_name) = 0;
+  virtual std::vector<std::uint8_t>
+  download_file(std::string cloud_file_id) = 0;
   web::json::value upload_file(std::string file_path);
 };
 } // namespace session
