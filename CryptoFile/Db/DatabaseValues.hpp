@@ -11,7 +11,9 @@ namespace db {
 
 static std::vector<std::unique_ptr<OriginalFile>> s_original_files;
 
-std::vector<std::unique_ptr<OriginalFile>> &get_original_file();
+// std::vector<std::unique_ptr<OriginalFile>> &get_original_file();
+void get_original_files(
+    std::vector<std::unique_ptr<OriginalFile>> &original_files);
 
 void init_database();
 } // namespace db

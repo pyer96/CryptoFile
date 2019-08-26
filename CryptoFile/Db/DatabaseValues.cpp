@@ -3,7 +3,8 @@
 
 namespace cryptofile {
 namespace db {
-void init_database() {
+void get_original_files(
+    std::vector<std::unique_ptr<OriginalFile>> &original_files) {
   auto db = Database::instance()->db();
   sqlite3_stmt *stmt;
 
@@ -14,8 +15,8 @@ void init_database() {
     while (not done) {
       switch (sqlite3_step(stmt)) {
       case SQLITE_ROW: {
-        s_original_files.emplace_back(std::make_unique<OriginalFile>());
-        auto &new_original_file = s_original_files.back();
+        original_files.emplace_back(std::make_unique<OriginalFile>());
+        auto &new_original_file = original_files.back();
         new_original_file->set_id(sqlite3_column_int(stmt, 0));
         new_original_file->set_checksum(
             reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
@@ -31,7 +32,7 @@ void init_database() {
     }
   }
   {
-    for (auto &original_file : s_original_files) {
+    for (auto &original_file : original_files) {
       std::string query =
           "SELECT * FROM [section] where [original_file_id] = " +
           std::to_string(original_file->id()) + " ORDER BY [order] ASC;";
@@ -61,11 +62,12 @@ void init_database() {
       }
     }
   }
-}
-
+} // namespace db
+/*
 std::vector<std::unique_ptr<OriginalFile>> &get_original_file() {
   return s_original_files;
 }
+*/
 } // namespace db
 } // namespace cryptofile
 

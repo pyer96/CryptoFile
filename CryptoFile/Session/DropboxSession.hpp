@@ -8,9 +8,11 @@ namespace session {
 class DropboxSession : public ServiceSession {
 public:
   DropboxSession()
-      : ServiceSession{"https://www.dropbox.com/oauth2/authorize",
+      : ServiceSession{db::CloudService::Dropbox,
+                       "https://www.dropbox.com/oauth2/authorize",
                        "https://api.dropboxapi.com/oauth2/token",
-                       "pndw92faxm4lh7e", "di82nja6vkt25ay",
+                       "pndw92faxm4lh7e",
+                       "di82nja6vkt25ay",
                        "http://localhost:8888/"} {}
   virtual web::json::value upload_file(std::vector<std::uint8_t> file_data,
                                        std::string file_name) override;

@@ -11,11 +11,11 @@ namespace cryptofile {
 
 class CryptoFileSession {
 private:
-  std::vector<std::unique_ptr<db::OriginalFile>> m_original_file;
-  std::vector<std::unique_ptr<session::ServiceSession>> m_authenticated_clouds;
-  CryptoFileSession(std::vector<db::CloudService> clouds_to_authenticate);
+  std::vector<std::unique_ptr<db::OriginalFile>> m_original_files;
+  std::vector<std::shared_ptr<session::ServiceSession>> m_authenticated_clouds;
 
 public:
+  CryptoFileSession(std::vector<db::CloudService> clouds_to_authenticate);
   void list_original_files();
   void
   save_file_on_clouds(std::size_t section_number,

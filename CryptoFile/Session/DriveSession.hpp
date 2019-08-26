@@ -11,6 +11,7 @@ class DriveSession : public ServiceSession {
 public:
   DriveSession()
       : ServiceSession{
+            db::CloudService::Drive,
             "https://accounts.google.com/o/oauth2/v2/auth",
             "https://www.googleapis.com/oauth2/v4/token",
             "548501522105-"

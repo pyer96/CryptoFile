@@ -6,8 +6,10 @@
 
 namespace cryptofile {
 namespace aont {
-void aont_mask(std::vector<std::uint8_t> &data, std::size_t sections_number,
-          std::function<void(std::vector<std::unique_ptr<aont::Section>> &)> callback) {
+void aont_mask(
+    std::vector<std::uint8_t> &data, std::size_t sections_number,
+    std::function<void(std::vector<std::unique_ptr<aont::Section>> &)>
+        callback) {
   std::vector<std::unique_ptr<cryptofile::aont::Section>> sections;
   sections.reserve(sections_number);
   CryptoPP::AutoSeededRandomPool prng;
@@ -17,6 +19,10 @@ void aont_mask(std::vector<std::uint8_t> &data, std::size_t sections_number,
   prng.GenerateBlock(key, key.size());
   prng.GenerateBlock(iv, sizeof(iv));
 
+  /** We split the data in the number of section defined by the user. The
+   * sections will have all the same size except for the last one that will
+   * usually be slighty smaller.
+   */
   double standard_section_size =
       static_cast<float>(data.size()) / static_cast<float>(sections_number);
   auto normal_section_size = std::ceil(standard_section_size);
@@ -39,7 +45,8 @@ void aont_mask(std::vector<std::uint8_t> &data, std::size_t sections_number,
                      hash.size());
     sections.emplace_back(std::move(encrypt_section));
   }
-  sections.emplace_back(std::make_unique<cryptofile::aont::LastSection>(encrypted_key));
+  sections.emplace_back(
+      std::make_unique<cryptofile::aont::LastSection>(encrypted_key));
   callback(sections);
 }
 
@@ -67,6 +74,5 @@ void aont_restore(std::vector<std::vector<std::uint8_t>> &sections_data,
   }
   callback(plain_text);
 }
-
 } // namespace aont
 } // namespace cryptofile
