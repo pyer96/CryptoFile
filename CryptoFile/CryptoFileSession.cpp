@@ -4,12 +4,13 @@
 #include "CryptoFile/Db/DatabaseValues.hpp"
 #include "CryptoFile/Session/DriveSession.hpp"
 #include "CryptoFile/Session/DropboxSession.hpp"
-#include "Tools/Base64.hpp"
 #include "Tools/Checksum.hpp"
 #include "Tools/Files.hpp"
+#include "Tools/Hex.hpp"
 
 #include <algorithm>
 #include <boost/filesystem.hpp>
+#include <fmt/format.h>
 #include <iostream>
 #include <numeric>
 
@@ -46,13 +47,15 @@ void CryptoFileSession::list_original_files() {
 void CryptoFileSession::save_file_on_clouds(
     std::size_t section_number, boost::filesystem::path file_path,
     std::vector<db::CloudService> selected_clouds) {
+
+  std::vector<std::uint8_t> data;
+  if (tools::read_from_file(data, file_path.c_str()) || section_number < 1) {
+    return;
+  }
+
   std::string original_file_name = file_path.filename().c_str();
   // DEBUG
   std::cerr << "original_file_name = " << original_file_name << '\n';
-  (void)section_number;
-
-  std::vector<std::uint8_t> data;
-  tools::read_from_file(data, file_path.c_str());
 
   std::string checksum;
   tools::calculate_sha256(data, checksum);
@@ -65,7 +68,7 @@ void CryptoFileSession::save_file_on_clouds(
   for (auto &cloud : selected_clouds) {
     const auto iterator = std::find_if(
         m_authenticated_clouds.begin(), m_authenticated_clouds.end(),
-        [=](const std::shared_ptr<session::ServiceSession> &session) {
+        [cloud](const std::shared_ptr<session::ServiceSession> &session) {
           return session->get_cloud_service_id() == cloud;
         });
     if (iterator != m_authenticated_clouds.end()) {
@@ -101,16 +104,21 @@ void CryptoFileSession::save_file_on_clouds(
         std::iota(index_buffer.begin(), index_buffer.end(), 0);
         std::random_shuffle(index_buffer.begin(), index_buffer.end());
 
+        for (std::size_t i = 0; i < sections.size(); ++i) {
+          original_file_sections.emplace_back(std::make_unique<db::Section>());
+        }
+
         for (std::size_t i = 0; i < sections.size();) {
-          for (std::size_t j = 0; j < selected_authenticated_clouds.size();
+          for (std::size_t j = 0;
+               j < selected_authenticated_clouds.size() && i < sections.size();
                ++j) {
+            std::cerr << "\n\n i = " << i << " \n j = " << j << "\n\n";
             std::string section_name;
-            tools::random_base64_string_generator(12, section_name);
+            tools::random_hex_string_generator(12, section_name);
 
             auto response = selected_authenticated_clouds[j]->upload_file(
-                sections[index_buffer[i]]->get_data(), original_file_name);
-            auto &new_section = original_file_sections.emplace_back(
-                std::make_unique<db::Section>());
+                sections[index_buffer[i]]->get_data(), section_name);
+            auto &new_section = original_file_sections[index_buffer[i]];
             new_section->set_name(section_name);
             new_section->set_order(index_buffer[i]);
             new_section->set_cloud_service_id(static_cast<int>(
@@ -119,6 +127,10 @@ void CryptoFileSession::save_file_on_clouds(
             ++i;
           }
         }
+        std::cerr << "NEW db::Section VECTOR\n";
+        for (const auto &sec : original_file_sections) {
+          std::cerr << sec->order() << '\n';
+        }
         original_file->save();
       });
 }
@@ -126,6 +138,8 @@ void CryptoFileSession::save_file_on_clouds(
 void CryptoFileSession::restore_file_from_clouds(
     std::size_t original_file_index,
     boost::filesystem::path restored_file_path) {
+  if (original_file_index >= m_original_files.size())
+    return;
   auto &file_to_restore = m_original_files[original_file_index];
   auto &sections_to_restore = file_to_restore->sections();
   std::vector<std::vector<std::uint8_t>> sections;
@@ -133,7 +147,8 @@ void CryptoFileSession::restore_file_from_clouds(
   std::cerr << "SIZE = " << sections.size() << '\n';
   for (std::size_t i = 0; i < sections_to_restore.size(); ++i) {
     auto &section = sections_to_restore[i];
-    std::cerr << i << " < " << sections.size() << '\n';
+    std::cerr << i << " < " << sections_to_restore.size() << '\n';
+    std::cerr << "order = " << section->order() << '\n';
 
     const auto cloud_service = std::find_if(
         m_authenticated_clouds.begin(), m_authenticated_clouds.end(),
@@ -148,18 +163,31 @@ void CryptoFileSession::restore_file_from_clouds(
                    "authenticated yet\n";
       return;
     }
+    std::cerr << "\ncloud id of the section to download = "
+              << section->section_cloud_id() << '\n';
     sections.emplace(
         sections.begin() + section->order(),
         (*cloud_service)->download_file(section->section_cloud_id()));
-    std::cerr << section->name() << '\n';
+    std::cerr << "Section name====" << section->name() << '\n';
+  }
+  for (const auto &sec : sections) {
+    std::cerr << "sec.size() = " << sec.size() << '\n';
   }
 
-  aont::aont_restore(
-      sections, [&restored_file_path, &file_name = file_to_restore->name()](
-                    std::vector<std::uint8_t> &plain_data) {
-        boost::filesystem::create_directories(restored_file_path.c_str());
-        restored_file_path /= file_name;
-        tools::write_2_file(plain_data, restored_file_path.c_str());
-      });
+  aont::aont_restore(sections, [&restored_file_path,
+                                &file_name = file_to_restore->name(),
+                                &file_checksum = file_to_restore->checksum()](
+                                   std::vector<std::uint8_t> &plain_data) {
+    boost::filesystem::create_directories(restored_file_path.c_str());
+    restored_file_path /= file_name;
+    tools::write_2_file(plain_data, restored_file_path.c_str());
+    std::string checksum;
+    tools::calculate_sha256(plain_data, checksum);
+    if (not checksum.compare(file_checksum)) {
+      std::cout << fmt::format(
+          "\"{}\" successfully restored! (sha256 verified: {})\n", file_name,
+          checksum);
+    }
+  });
 }
 } // namespace cryptofile

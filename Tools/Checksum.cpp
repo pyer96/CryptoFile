@@ -17,7 +17,7 @@ void calculate_sha256(std::vector<std::uint8_t> &data,
   CryptoPP::SHA256 hash;
   hash.CalculateDigest(digest_hash_buffer.data(), data.data(), data.size());
   CryptoPP::Base64Encoder encoder(new CryptoPP::StringSink(digest_hash));
-  encoder.Put(data.data(), data.size());
+  encoder.Put(digest_hash_buffer.data(), digest_hash_buffer.size());
   encoder.MessageEnd();
 }
 } // namespace tools
