@@ -51,6 +51,7 @@ void init_cryptofile() {
 
   std::vector<db::CloudService> clouds_to_authenticate;
 
+  
   bool condition = true;
   while (condition) {
     std::cout << "\n\nChoose between available clouds:\n"

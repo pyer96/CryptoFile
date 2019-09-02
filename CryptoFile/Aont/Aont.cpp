@@ -15,9 +15,7 @@ void aont_mask(
   CryptoPP::AutoSeededRandomPool prng;
   CryptoPP::SecByteBlock key(
       CryptoPP::AES::MAX_KEYLENGTH);           // 32 bytes (256 bits)
-  CryptoPP::byte iv[CryptoPP::AES::BLOCKSIZE]; // 16 bytes (128 bits)
   prng.GenerateBlock(key, key.size());
-  prng.GenerateBlock(iv, sizeof(iv));
 
   /** We split the data in the number of section defined by the user. The
    * sections will have all the same size except for the last one that will

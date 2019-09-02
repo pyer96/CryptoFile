@@ -125,6 +125,8 @@ void CryptoFileSession::save_file_on_clouds(
                 selected_authenticated_clouds[j]->get_cloud_service_id()));
             new_section->set_section_cloud_id(response["id"].as_string());
             ++i;
+            std::cout << "\nSection " << i << " uploaded on "
+                   << (j == 0 ? "Drive" : "Dropbox");
           }
         }
         std::cerr << "NEW db::Section VECTOR\n";
@@ -165,11 +167,14 @@ void CryptoFileSession::restore_file_from_clouds(
     }
     std::cerr << "\ncloud id of the section to download = "
               << section->section_cloud_id() << '\n';
-    sections.emplace(
+    auto pos = sections.emplace(
         sections.begin() + section->order(),
         (*cloud_service)->download_file(section->section_cloud_id()));
     std::cerr << "Section name====" << section->name() << '\n';
+    std::cout << "\nSection " << i + 1 << "/" << sections_to_restore.size()
+              << " downloaded\t\tSize -> " << pos->size()<<" (bytes)";
   }
+
   for (const auto &sec : sections) {
     std::cerr << "sec.size() = " << sec.size() << '\n';
   }
@@ -185,7 +190,7 @@ void CryptoFileSession::restore_file_from_clouds(
     tools::calculate_sha256(plain_data, checksum);
     if (not checksum.compare(file_checksum)) {
       std::cout << fmt::format(
-          "\"{}\" successfully restored! (sha256 verified: {})\n", file_name,
+          "\n\"{}\" successfully restored! (sha256 verified: {})\n", file_name,
           checksum);
     }
   });
