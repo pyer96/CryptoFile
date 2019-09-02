@@ -6,14 +6,14 @@ typedef std::function<void(std::vector<std::uint8_t> &)> callback_t;
 
 void aont_restore(std::vector<std::vector<std::uint8_t>> &sections_data,
                   callback_t callback) {
-  std::vector<std::unique_ptr<aont::DecryptSection>> sections;
+  std::vector<std::unique_ptr<cryptofile::aont::DecryptSection>> sections;
   sections.reserve(sections_data.size() - 1);
   std::vector<std::uint8_t> decrypted_key( //?
       &(sections_data.back().data()[0]),
       &(sections_data.back().data()[sections_data.back().size()]));
   for (std::size_t i = 0; i < sections_data.size() - 1; ++i) {
     sections.emplace_back(
-        std::make_unique<aont::DecryptSection>(gsl::span<std::uint8_t>(
+        std::make_unique<cryptofile::aont::DecryptSection>(gsl::span<std::uint8_t>(
             &(sections_data[i].data()[0]), sections_data[i].size())));
     const auto &digest_hash = sections[i]->get_hash();
     CryptoPP::xorbuf(decrypted_key.data(), decrypted_key.data(),

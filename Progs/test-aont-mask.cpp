@@ -3,7 +3,7 @@
 #include <boost/filesystem.hpp>
 #include <memory>
 
-typedef std::function<void(std::vector<std::unique_ptr<aont::Section>> &)>
+typedef std::function<void(std::vector<std::unique_ptr<cryptofile::aont::Section>> &)>
     callback_t;
 
 std::vector<std::unique_ptr<cryptofile::aont::Section>>

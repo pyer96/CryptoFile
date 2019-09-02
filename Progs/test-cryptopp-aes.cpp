@@ -68,7 +68,7 @@ int main(int argc, const char *argv[]) {
  // encoder.MessageEnd();
   std::cout << '\n';
   tools::write_2_file(
-      result, "/home/umberto/Progetti/CryptoFile/elefante-crypted.jpeg");
+      result, "/home/pier/Projects/CryptoFile/elefante-crypted.jpeg");
 
   // Decrypt
   CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption decryptor;
@@ -97,7 +97,7 @@ int main(int argc, const char *argv[]) {
   std::cout << '\n';
   tools::write_2_file(
       decrypted_file,
-      "/home/umberto/Progetti/CryptoFile/elefante-restored.jpeg");
+      "/home/pier/Projects/CryptoFile/elefante-restored.jpeg");
 
   return 0;
 }

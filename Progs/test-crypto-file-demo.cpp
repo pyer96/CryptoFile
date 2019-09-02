@@ -12,19 +12,19 @@
 #include <sqlite3.h>
 #include <vector>
 
-void list(const std::vector<db::OriginalFile> &original_files) {
+void list(const std::vector<cryptofile::db::OriginalFile> &original_files) {
   std::cout << '\n';
   for (std::size_t i = 0; i < original_files.size(); ++i) {
     std::cout << fmt::format("({}) {}\n", i, original_files[i].name());
   }
   std::cout << '\n';
 }
-void read_db(std::vector<db::OriginalFile> &original_files,
-             std::vector<db::Section> &sections) {
+void read_db(std::vector<cryptofile::db::OriginalFile> &original_files,
+             std::vector<cryptofile::db::Section> &sections) {
   original_files.clear();
   sections.clear();
   sqlite3_stmt *stmt;
-  auto db = db::Database::instance()->db();
+  auto db = cryptofile::db::Database::instance()->db();
   {
     std::string query = "SELECT * FROM [original_file];";
     sqlite3_prepare(db, query.c_str(), query.size(), &stmt, nullptr);
@@ -75,9 +75,9 @@ void read_db(std::vector<db::OriginalFile> &original_files,
     }
   }
 }
-void upload(session::DriveSession &drive, session::DropboxSession &dropbox,
-            std::vector<db::OriginalFile> &original_files,
-            std::vector<db::Section> &sections) {
+void upload(cryptofile::session::DriveSession &drive, cryptofile::session::DropboxSession &dropbox,
+            std::vector<cryptofile::db::OriginalFile> &original_files,
+            std::vector<cryptofile::db::Section> &sections) {
   std::string file_path;
   std::cout << "Enter file path: ";
   std::cin.ignore();
@@ -141,9 +141,9 @@ void upload(session::DriveSession &drive, session::DropboxSession &dropbox,
     last_section.save();
   }
 }
-void download(session::DriveSession &drive, session::DropboxSession &dropbox,
-              std::vector<db::OriginalFile> &original_files,
-              std::vector<db::Section> &sections) {
+void download(cryptofile::session::DriveSession &drive, cryptofile::session::DropboxSession &dropbox,
+              std::vector<cryptofile::db::OriginalFile> &original_files,
+              std::vector<cryptofile::db::Section> &sections) {
   read_db(original_files, sections);
   std::cout << "Select the file to download: ";
   list(original_files);
@@ -158,7 +158,8 @@ void download(session::DriveSession &drive, session::DropboxSession &dropbox,
     for (const auto &s : sections) {
       std::cerr << s.original_file_id() << " == " << original_files[index].id()
                 << '\n';
-      if (s.original_file_id() == original_files[index].id()) {
+      if (s.original_file_id() == original_files[index].id()) {;
+
         std::cerr << "s.cloud_service_id() = " << s.cloud_service_id() << '\n';
         if (s.cloud_service_id() == 1) {
           section_1 = drive.download_file(s.section_cloud_id());
@@ -176,7 +177,8 @@ void download(session::DriveSession &drive, session::DropboxSession &dropbox,
       os.open(original_files[index].name(),
               std::ofstream::out | std::fstream::binary);
       os.write(reinterpret_cast<const char *>(file.data()), file.size());
-    }
+    };
+
   }
 }
 
@@ -185,16 +187,17 @@ int main() {
   std::cout << file.rdbuf() << "\n";
   std::cout << "AUTHENTICATION WITH ONLINE CLOUDS...\n";
 
-  session::DropboxSession dropbox;
-  session::DriveSession drive;
+  cryptofile::session::DropboxSession dropbox;
+  cryptofile::session::DriveSession drive;
 
-  std::vector<db::OriginalFile> original_files;
-  std::vector<db::Section> sections;
+  std::vector<cryptofile::db::OriginalFile> original_files;
+  std::vector<cryptofile::db::Section> sections;
   read_db(original_files, sections);
 
   bool exit = false;
 
   while (!exit) {
+    system("Color 0A");
     std::cout << "Choose one of the following\n"
                  "1.  LIST\n"
                  "2.  UPLOAD\n"
