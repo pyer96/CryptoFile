@@ -126,7 +126,7 @@ void CryptoFileSession::save_file_on_clouds(
             new_section->set_section_cloud_id(response["id"].as_string());
             ++i;
             std::cout << "\nSection " << i << " uploaded on "
-                   << (j == 0 ? "Drive" : "Dropbox");
+                   << (j == 0 && new_section->get_cloud_service_id()==1 ? "Drive" : "Dropbox");
           }
         }
         std::cerr << "NEW db::Section VECTOR\n";
