@@ -34,6 +34,7 @@ public:
   void set_section_cloud_id(std::string section_cloud_id) {
     m_section_cloud_id = section_cloud_id;
   }
+  int get_cloud_service_id(){return m_cloud_service_id;}
   void save();
   void print_members();
 };
